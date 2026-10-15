@@ -14,17 +14,20 @@ afterAll(async () => {
 });
 
 describe("EventoService.criar (integração)", () => {
-  it("não grava evento com nome de 2 letras", async () => {
-    // Arrange
-    const dados = { nome: "TI", data: "2026-10-15" };
+  it("grava o evento no banco com o nome correto", async () => {
+    // Arrange: um evento válido (data no formato ano-mês-dia)
+    const dados = { nome: "Semana de Tecnologia", data: "2026-11-20" };
 
-    // Act + Assert: a gravação precisa ser recusada com ValidationError
-    await expect(EventoService.criar(dados)).rejects.toThrow(ValidationError);
+    // Act: chamem o service que cria o evento (não esqueçam o await!)
+    const criado = await EventoService.criar(dados);
 
-    // Assert no banco: nada foi gravado
-    const total = await Evento.count();
-    expect(total).toBe(0);
+    // Assert: busquem o evento NO BANCO pelo id
+    const doBanco = await Evento.findByPk(criado.id);
+
+    expect(doBanco).not.toBeNull();
+    expect(doBanco.nome).toBe(dados.nome);
   });
+
 
   // ============================================================
   // SUA VEZ: complete o teste abaixo, seguindo o modelo do
